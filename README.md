@@ -5,13 +5,17 @@
         alt="Picture" 
         width="300" 
         style="display: block; margin: 0 auto" />
-</p>      
+</p>     
 
-With Unicosm you will have the possibility to connect your players from the preferred offline signing client on any chains!  
-We have created a whole series of tools that allow you to interact from any chain of the cosmos ecosystem.  
+<div align="center">
+  <a href="https://cosmdev.github.io/unicosm-demo/">Demonstration</a> - <a href="https://cosmdev.github.io/unicosm-doc/">Documentation</a><br /><br />
+  With Unicosm you will have the possibility to connect your players from the preferred offline signing client on any chains!  <br />
+  We have created a whole series of tools that allow you to interact from any chain of the cosmos ecosystem.  
+</div>  
 
-Full documentation:
-https://cosmdev.github.io/unicosm-doc/
+
+
+<br /><br />
 
 | Cosmos SignArbitrary      | Cosmos SendToken |
 | ----------- | ----------- |

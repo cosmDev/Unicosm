@@ -1,7 +1,10 @@
 # Unicosm
 
-![alt text](https://github.com/cosmDev/Unicosm/blob/main/Icon/github/unicosm3.png "Title")
-
+<img src="https://github.com/cosmDev/Unicosm/blob/main/Icon/github/unicosm3.png" 
+        alt="Picture" 
+        width="200" 
+        style="display: block; margin: 0 auto" />
+        
 With Unicosm you will have the possibility to connect your players from the preferred offline signing client on any chains!
 We have created a whole series of tools that allow you to interact from any chain of the cosmos ecosystem.
 

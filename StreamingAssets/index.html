@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>UniCosm debug server</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <script src="https://unpkg.com/@cosmdev/unicosmjs/dist/unicosm.js"></script> 
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">Unicosm debug signer</a> 
+      </div>
+    </nav>
+ 
+    <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+      <div class="list-group">
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <i data-feather="info" width="32" height="32"></i>
+          <div class="d-flex gap-2 w-100 justify-content-between">
+            <div>
+              <h6 class="mb-0">Signer query type</h6>
+              <p class="mb-0 opacity-75" >Type of message you request from the offline signer.</p>
+            </div>
+            <small><span class="badge text-bg-secondary" id="queryResults"></span></small>
+          </div>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <i data-feather="link" width="32" height="32"></i>
+          <div class="d-flex gap-2 w-100 justify-content-between">
+            <div>
+              <h6 class="mb-0">Chain asked</h6>
+              <p class="mb-0 opacity-75">What is the chain to call from signer</p>
+            </div>
+            <small><span class="badge text-bg-secondary" id="chainId"></span></small>
+          </div>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <i data-feather="settings" width="32" height="32"></i>
+          <div class="d-flex gap-2 w-100 justify-content-between">
+            <div>
+              <h6 class="mb-0">Signer type</h6>
+              <p class="mb-0 opacity-75">Type of offline signer you want use</p>
+            </div>
+            <small><span class="badge text-bg-secondary" id="signer"></span></small>
+          </div>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <table class="table" id="getUnicosmConfig">
+            <thead>
+              <tr>
+                <th scope="col">Key</th>
+                <th scope="col">Value</th> 
+              </tr>
+            </thead>
+            <tbody> 
+            </tbody>
+          </table>
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+          <i data-feather="settings" width="32" height="32"></i>
+          <div class="d-flex gap-2 w-100 justify-content-between">
+            <div>
+              <h6 class="mb-0">Result</h6>
+              <p class="mb-0 opacity-75"><span id="resultTx"></span></p>
+            </div>            
+          </div>
+        </a>     
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+ function escapeHtmlEntities (str) {
+  // Xss fix
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/>/g, '&gt;')
+    .replace(/</g, '&lt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+const search = window.location.search; 
+feather.replace();
+ 
+// Further parsing:
+const params = new URLSearchParams(search);
+ 
+$(document).ready(function() {
+  // $("#queryResults").html(params.get("type"))
+  $("#queryResults").append(escapeHtmlEntities(params.get("type")));
+  $("#chainId").append(escapeHtmlEntities(params.get("chainId")));
+  if(params.get("signer")) 
+    $("#signer").append(escapeHtmlEntities(params.get("signer")));
+
+
+  for (const [key, value] of params) {
+
+    console.log(`${key}: ${value}`);
+    $('#getUnicosmConfig').append("<tr><td>"+key+"</td><td>"+escapeHtmlEntities(value)+"</td></tr>");
+  }
+
+window.onload = async () => { 
+  let x = params.get("type");
+  switch (x) {
+    case "CosmosSignerConnect":
+      text = "CosmosSignerConnect";
+      exportCosmosConfig.signerConnect(params.get("chainId"), params.get("signer"), params.get("experimentalSuggestChain"))
+      console.log(params.get("chainId"))
+      console.log(params.get("signer"))
+      break;
+    case "CosmosSignArbitrary":
+      text = "CosmosSignArbitrary";
+      let signArbitrary = await exportCosmosConfig.signArbitrary(params.get("chainId"), params.get("message"), params.get("signer"), params.get("experimentalSuggestChain")) 
+      if(signArbitrary.toString().includes("rpc error")) {
+        $("#resultTx").append(signArbitrary.toString());
+        break;
+      } else {
+        $("#resultTx").append(JSON.stringify(signArbitrary));
+        break;
+      }  
+      break;
+    case "CosmosSendToken":
+      text = "CosmosSendToken";
+      let sendToken = await exportCosmosConfig.sendToken(
+        params.get("chainId"), 
+        params.get("rpc"), 
+        params.get("gasPrice"), 
+        params.get("chainDenom"), 
+        params.get("addressTo"), 
+        params.get("amount"), 
+        params.get("signer"),
+        params.get("experimentalSuggestChain")
+      )
+      if(sendToken.toString().includes("rpc error")) {
+        $("#resultTx").append(sendToken.toString());
+        break;
+      } else {
+        $("#resultTx").append(JSON.stringify(sendToken));
+        break;
+      }  
+      case "CosmosCosmWasmQuery":
+      text = "CosmosCosmWasmQuery";
+      console.log(params.get("chainId"))
+      console.log(params.get("queryNameJson"))
+      console.log(params.get("queryVariablesJson"))
+      let wasmQuery = await exportCosmosConfig.wasmQuery(
+        params.get("rpc"), 
+        params.get("contractAddress"), 
+        params.get("queryNameJson"), 
+        params.get("queryVariablesJson") 
+      ) 
+      console.log("wasmQuery", wasmQuery) 
+      $("#resultTx").append(JSON.stringify(wasmQuery));
+      break;
+      case "CosmosCosmWasmExecute":
+      text = "CosmosCosmWasmExecute";
+      console.log(params.get("chainId"))
+      console.log(params.get("rpc"))
+      console.log(params.get("contractAddress"))
+      console.log(params.get("exectuteNameJson"))
+      console.log(params.get("exectuteVariablesJson"))
+      let wasmExecute = await exportCosmosConfig.wasmExecute(
+        params.get("chainId"), 
+        params.get("rpc"), 
+        params.get("gasPrice"),
+        params.get("chainDenom"), 
+        params.get("contractAddress"),      
+        params.get("exectuteNameJson"), 
+        params.get("exectuteVariablesJson"), 
+        params.get("signer"),
+        params.get("experimentalSuggestChain")
+      )  
+
+      if(wasmExecute.toString().includes("rpc error")) {
+        $("#resultTx").append(wasmExecute.toString());
+        break;
+      } else {
+        $("#resultTx").append(JSON.stringify(wasmExecute));
+        break;
+      } 
+      
+    default:
+      text = "No value found";
+  }
+ 
+}
+});  
+</script>
